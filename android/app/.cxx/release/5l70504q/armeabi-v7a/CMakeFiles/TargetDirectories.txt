@@ -1,0 +1,2 @@
+C:/pragmatic_flutter/android/app/.cxx/release/5l70504q/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/pragmatic_flutter/android/app/.cxx/release/5l70504q/armeabi-v7a/CMakeFiles/rebuild_cache.dir

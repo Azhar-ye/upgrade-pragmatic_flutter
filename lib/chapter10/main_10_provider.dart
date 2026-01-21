@@ -1,74 +1,39 @@
-///Switching Themes using Provider package
+/// Switching Themes using Provider package (Flutter terbaru FIX)
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'booklisting.dart';
 import 'themes_notifier.dart';
 
-//Entry point to app
-//void main() => runApp(
-//      ChangeNotifierProvider<ThemesNotifier>(
-//        child: BooksApp(),
-//        create: (BuildContext context) {
-//          return ThemesNotifier();
-//        },
-//      ),
-//    );
-
-class BooksApp extends StatefulWidget {
-  @override
-  _BooksAppState createState() => _BooksAppState();
+void main() {
+  runApp(
+    ChangeNotifierProvider<ThemesNotifier>(
+      create: (BuildContext context) => ThemesNotifier(),
+      child: const BooksApp(),
+    ),
+  );
 }
 
-class _BooksAppState extends State<BooksApp> {
+class BooksApp extends StatelessWidget {
+  const BooksApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        theme: Provider.of<ThemesNotifier>(context).currentThemeData,
-        home: Scaffold(
-          appBar: AppBar(
-            leading: Icon(Icons.home),
-            title: Text("Books Listing"),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.all_inclusive),
-                onPressed: () =>
-                    Provider.of<ThemesNotifier>(context, listen: false)
-                        .switchTheme(),
-              )
-            ],
-          ),
-          body: BooksListing(),
-        ));
-  }
-
-  Widget body() {
-    return Container(
-      alignment: Alignment.center,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(16.0),
-            child: Image.asset(
-              "assets/book_cover.png",
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Text(
-            "Beautiful Ocean",
-            style: TextStyle(fontSize: 20),
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          RaisedButton(
-            child: Text("Switch Theme"),
-            onPressed: () {},
-          ),
-        ],
+      debugShowCheckedModeBanner: false,
+      theme: context.watch<ThemesNotifier>().currentThemeData,
+      home: Scaffold(
+        appBar: AppBar(
+          leading: const Icon(Icons.home),
+          title: const Text("Books Listing"),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.all_inclusive),
+              onPressed: () => context.read<ThemesNotifier>().switchTheme(),
+            )
+          ],
+        ),
+        body: const BooksListing(),
       ),
     );
   }

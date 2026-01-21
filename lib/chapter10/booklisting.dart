@@ -1,38 +1,41 @@
 import 'package:flutter/material.dart';
 
 /// Chapter10: Flutter Themes
-///
-//StatelessWidget to render booklisting
+/// StatelessWidget to render book listing
 
-List bookData() {
+List<Map<String, dynamic>> bookData() {
   return [
     {
       'title': 'Book Title',
       'authors': ['Author1', 'Author2'],
-      'image': 'assets/book_cover.png'
+      'image': 'assets/book_cover.png',
     },
     {
       'title': 'Book Title 2',
       'authors': ['Author1'],
-      'image': 'assets/book_cover.png'
-    }
+      'image': 'assets/book_cover.png',
+    },
   ];
 }
 
 class BooksListing extends StatelessWidget {
-  final booksListing = bookData();
+  const BooksListing({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final booksListing = bookData();
+
     return ListView.builder(
-      itemCount: booksListing == null ? 0 : booksListing.length,
+      itemCount: booksListing.length,
       itemBuilder: (context, index) {
+        final book = booksListing[index];
+
         return Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
           elevation: 5,
-          margin: EdgeInsets.all(10),
+          margin: const EdgeInsets.all(10),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -43,22 +46,27 @@ class BooksListing extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        '${booksListing[index]['title']}',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold),
+                        '${book['title']}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      booksListing[index]['authors'] != null
+                      (book['authors'] != null &&
+                              (book['authors'] as List).isNotEmpty)
                           ? Text(
-                              'Author(s): ${booksListing[index]['authors'].join(", ")}',
-                              style: TextStyle(fontSize: 14),
+                              'Author(s): ${(book['authors'] as List).join(", ")}',
+                              style: const TextStyle(fontSize: 14),
                             )
-                          : Text(""),
+                          : const Text(""),
                     ],
                   ),
                 ),
-                booksListing[index]['image'] != null
+                (book['image'] != null)
                     ? Image.asset(
-                        booksListing[index]['image'],
+                        book['image'],
+                        width: 60,
+                        height: 80,
                         fit: BoxFit.fill,
                       )
                     : Container(),

@@ -1,82 +1,81 @@
-//Building BooksApp App's User Interface.
-//Switching from default light theme to dark theme and vice versa
 import 'package:flutter/material.dart';
-
 import 'themes.dart';
 
 enum AppThemes { light, dark }
 
-//Uncomment the line below to run from this file
-//void main() => runApp(BooksApp());
+//void main() => runApp(const BooksApp());
 
-//Showing book listing in ListView
 class BooksApp extends StatefulWidget {
+  const BooksApp({super.key});
+
   @override
-  _BooksAppState createState() => _BooksAppState();
+  State<BooksApp> createState() => _BooksAppState();
 }
 
 class _BooksAppState extends State<BooksApp> {
-  //NEW CODE
-  var currentTheme = AppThemes.light;
+  AppThemes currentTheme = AppThemes.light;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      //NEW CODE: applying selected theme
       theme: currentTheme == AppThemes.light ? defaultTheme : darkTheme,
       home: Scaffold(
         appBar: AppBar(
-            leading: Icon(Icons.home),
-            title: Text("Books Listing"),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.all_inclusive),
-                //NEW CODE: Toggling from light to dark theme and vice versa
-                onPressed: () {
-                  setState(() {
-                    currentTheme = currentTheme == AppThemes.light
-                        ? AppThemes.dark
-                        : AppThemes.light;
-                  });
-                },
-              )
-            ]),
-        body: BooksListing(),
+          leading: const Icon(Icons.home),
+          title: const Text("Books Listing"),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.all_inclusive),
+              onPressed: () {
+                setState(() {
+                  currentTheme = currentTheme == AppThemes.light
+                      ? AppThemes.dark
+                      : AppThemes.light;
+                });
+              },
+            ),
+          ],
+        ),
+        body: const BooksListing(),
       ),
     );
   }
 }
 
-List bookData() {
+List<Map<String, dynamic>> bookData() {
   return [
     {
       'title': 'Book Title',
       'authors': ['Author1', 'Author2'],
-      'image': 'assets/book_cover.png'
+      'image': 'assets/book_cover.png',
     },
     {
       'title': 'Book Title 2',
       'authors': ['Author1'],
-      'image': 'assets/book_cover.png'
-    }
+      'image': 'assets/book_cover.png',
+    },
   ];
 }
 
 class BooksListing extends StatelessWidget {
-  final booksListing = bookData();
+  const BooksListing({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final booksListing = bookData();
+
     return ListView.builder(
-      itemCount: booksListing == null ? 0 : booksListing.length,
+      itemCount: booksListing.length,
       itemBuilder: (context, index) {
+        final book = booksListing[index];
+
         return Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
           elevation: 5,
-          margin: EdgeInsets.all(10),
+          margin: const EdgeInsets.all(10),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -87,22 +86,27 @@ class BooksListing extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        '${booksListing[index]['title']}',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold),
+                        '${book['title']}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      booksListing[index]['authors'] != null
+                      (book['authors'] != null &&
+                              (book['authors'] as List).isNotEmpty)
                           ? Text(
-                              'Author(s): ${booksListing[index]['authors'].join(", ")}',
-                              style: TextStyle(fontSize: 14),
+                              'Author(s): ${(book['authors'] as List).join(", ")}',
+                              style: const TextStyle(fontSize: 14),
                             )
-                          : Text(""),
+                          : const Text(""),
                     ],
                   ),
                 ),
-                booksListing[index]['image'] != null
+                (book['image'] != null)
                     ? Image.asset(
-                        booksListing[index]['image'],
+                        book['image'],
+                        width: 60,
+                        height: 80,
                         fit: BoxFit.fill,
                       )
                     : Container(),

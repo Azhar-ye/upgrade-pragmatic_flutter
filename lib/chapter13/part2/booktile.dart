@@ -1,47 +1,68 @@
 import 'package:flutter/material.dart';
-
 import 'bookmodel.dart';
 
 class BookTile extends StatelessWidget {
   final BookModel bookModelObj;
 
-  const BookTile({Key key, this.bookModelObj}) : super(key: key);
+  const BookTile({super.key, required this.bookModelObj});
+
   @override
   Widget build(BuildContext context) {
+    final title = bookModelObj.volumeInfo?.title ?? "No Title";
+    final authors = bookModelObj.volumeInfo?.authors ?? [];
+    final thumbnail = bookModelObj.volumeInfo?.imageLinks?.thumbnail;
+
     return Card(
+      elevation: 4,
+      margin: const EdgeInsets.all(10),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
+        borderRadius: BorderRadius.circular(12),
       ),
-      elevation: 5,
-      margin: EdgeInsets.all(10),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(10),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Flexible(
+            if (thumbnail != null && thumbnail.isNotEmpty)
+              Image.network(
+                thumbnail,
+                width: 60,
+                height: 80,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const SizedBox(
+                    width: 60,
+                    height: 80,
+                    child: Icon(Icons.book),
+                  );
+                },
+              )
+            else
+              const SizedBox(
+                width: 60,
+                height: 80,
+                child: Icon(Icons.book),
+              ),
+            const SizedBox(width: 12),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
+                children: [
                   Text(
-                    '${bookModelObj.volumeInfo.title}',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  bookModelObj.volumeInfo.authors != null
-                      ? Text(
-                          'Author(s): ${bookModelObj.volumeInfo.authors.join(", ")}',
-                          style: TextStyle(fontSize: 14),
-                        )
-                      : Text(""),
+                  const SizedBox(height: 6),
+                  Text(
+                    authors.isNotEmpty
+                        ? "Author(s): ${authors.join(", ")}"
+                        : "Author(s): -",
+                  ),
                 ],
               ),
             ),
-            bookModelObj.volumeInfo.imageLinks.thumbnail != null
-                ? Image.network(
-                    bookModelObj.volumeInfo.imageLinks.thumbnail,
-                    fit: BoxFit.fill,
-                  )
-                : Container(),
           ],
         ),
       ),

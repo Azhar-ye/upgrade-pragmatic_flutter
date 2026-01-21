@@ -1,14 +1,12 @@
-//Building BooksApp App's User Interface.
-//Local theme demonstration
 import 'package:flutter/material.dart';
-
 import 'themes.dart';
 
-//Uncomment the line below to run from this file
-//void main() => runApp(BooksApp());
+//void main() => runApp(const BooksApp());
 
-//Showing book listing in ListView
+/// Chapter10: Local theme demonstration
 class BooksApp extends StatelessWidget {
+  const BooksApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,62 +14,66 @@ class BooksApp extends StatelessWidget {
       theme: defaultTheme,
       home: Scaffold(
         appBar: AppBar(
-          leading: Icon(Icons.home),
-          title: Text("Books Listing"),
+          leading: const Icon(Icons.home),
+          title: const Text("Books Listing"),
         ),
-        body: BooksListing(),
+        body: const BooksListing(),
       ),
     );
   }
 }
 
-List bookData() {
+List<Map<String, dynamic>> bookData() {
   return [
     {
       'title': 'Book Title',
       'authors': ['Author1', 'Author2'],
-      'image': 'assets/book_cover.png'
+      'image': 'assets/book_cover.png',
     },
     {
       'title': 'Book Title 2',
       'authors': ['Author1'],
-      'image': 'assets/book_cover.png'
-    }
+      'image': 'assets/book_cover.png',
+    },
   ];
 }
 
 class BooksListing extends StatelessWidget {
-  final booksListing = bookData();
+  const BooksListing({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      //ThemeData local to Card widget
-      data: ThemeData(
-        cardColor: Colors.pinkAccent,
-        //Creating local TextTheme
-        textTheme: TextTheme(
-          headline6: TextStyle(fontFamily: 'Pangolin', fontSize: 20),
-          //Extending on parent's TextTheme
-          bodyText2: Theme.of(context)
-              .copyWith(
-                textTheme: TextTheme(
-                  bodyText2: TextStyle(fontStyle: FontStyle.italic),
-                ),
-              )
-              .textTheme
-              .bodyText2,
-        ),
+    final booksListing = bookData();
+
+    // Local theme only for this widget tree
+    final localTheme = Theme.of(context).copyWith(
+      cardTheme: const CardThemeData(
+        color: Colors.pinkAccent,
       ),
+      textTheme: Theme.of(context).textTheme.copyWith(
+            titleLarge: const TextStyle(
+              fontFamily: 'Pangolin',
+              fontSize: 20,
+            ),
+            bodyMedium: const TextStyle(
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+    );
+
+    return Theme(
+      data: localTheme,
       child: ListView.builder(
-        itemCount: booksListing == null ? 0 : booksListing.length,
+        itemCount: booksListing.length,
         itemBuilder: (context, index) {
+          final book = booksListing[index];
+
           return Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
             ),
             elevation: 5,
-            margin: EdgeInsets.all(10),
+            margin: const EdgeInsets.all(10),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
@@ -82,24 +84,25 @@ class BooksListing extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          '${booksListing[index]['title']}',
-                          style: Theme.of(context).textTheme.headline6,
+                          '${book['title']}',
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
-                        booksListing[index]['authors'] != null
+                        (book['authors'] != null &&
+                                (book['authors'] as List).isNotEmpty)
                             ? Text(
-                                'Author(s): ${booksListing[index]['authors'].join(", ")}',
-                                style: Theme.of(context).textTheme.bodyText2,
+                                'Author(s): ${(book['authors'] as List).join(", ")}',
+                                style: Theme.of(context).textTheme.bodyMedium,
                               )
-                            : Text(""),
+                            : const Text(""),
                       ],
                     ),
                   ),
-                  booksListing[index]['image'] != null
-                      ? Image.asset(
-                          booksListing[index]['image'],
-                          fit: BoxFit.fill,
-                        )
-                      : Container(),
+                  Image.asset(
+                    book['image'],
+                    width: 60,
+                    height: 80,
+                    fit: BoxFit.fill,
+                  ),
                 ],
               ),
             ),

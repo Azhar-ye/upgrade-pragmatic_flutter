@@ -1,17 +1,18 @@
-///Switching Themes using InheritedWidget
+/// Switching Themes using InheritedWidget (Flutter 최신 버전 FIX)
 import 'package:flutter/material.dart';
 
 import 'booklisting.dart';
 
-//void main() => runApp(BooksApp());
+//void main() => runApp(const BooksApp());
 
 class BooksApp extends StatelessWidget {
-  // This widget is the root of your application.
+  const BooksApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return RootWidget(
       child: BooksAppScreen(
-        child: BooksListing(),
+        child: const BooksListing(),
       ),
     );
   }
@@ -20,14 +21,16 @@ class BooksApp extends StatelessWidget {
 class RootWidget extends StatefulWidget {
   final Widget child;
 
-  const RootWidget({Key key, @required this.child}) : super(key: key);
+  const RootWidget({super.key, required this.child});
 
   static RootWidgetState of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<MyInheritedWidget>().data;
+    final inherited =
+        context.dependOnInheritedWidgetOfExactType<MyInheritedWidget>();
+    return inherited!.data;
   }
 
   @override
-  State<StatefulWidget> createState() => RootWidgetState();
+  State<RootWidget> createState() => RootWidgetState();
 }
 
 class RootWidgetState extends State<RootWidget> {
@@ -44,8 +47,8 @@ class RootWidgetState extends State<RootWidget> {
   @override
   Widget build(BuildContext context) {
     return MyInheritedWidget(
-      child: widget.child,
       data: this,
+      child: widget.child,
     );
   }
 }
@@ -53,14 +56,14 @@ class RootWidgetState extends State<RootWidget> {
 class MyInheritedWidget extends InheritedWidget {
   final RootWidgetState data;
 
-  MyInheritedWidget({
-    Key key,
-    @required Widget child,
-    @required this.data,
-  }) : super(key: key, child: child);
+  const MyInheritedWidget({
+    super.key,
+    required super.child,
+    required this.data,
+  });
 
   @override
-  bool updateShouldNotify(InheritedWidget oldWidget) {
+  bool updateShouldNotify(covariant MyInheritedWidget oldWidget) {
     return true;
   }
 }
@@ -68,25 +71,22 @@ class MyInheritedWidget extends InheritedWidget {
 class BooksAppScreen extends StatelessWidget {
   final Widget child;
 
-  BooksAppScreen({
-    Key key,
-    @required this.child,
-  }) : super(key: key);
+  const BooksAppScreen({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
+    final isLight = RootWidget.of(context).currentTheme == MyThemes.light;
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: RootWidget.of(context).currentTheme == MyThemes.light
-          ? themeData[0]
-          : themeData[1],
+      theme: isLight ? themeData[0] : themeData[1],
       home: Scaffold(
         appBar: AppBar(
-          leading: Icon(Icons.home),
-          title: Text("Books Listing"),
+          leading: const Icon(Icons.home),
+          title: const Text("Books Listing"),
           actions: [
             IconButton(
-              icon: Icon(Icons.all_inclusive),
+              icon: const Icon(Icons.all_inclusive),
               onPressed: () => RootWidget.of(context).switchTheme(),
             )
           ],
@@ -101,11 +101,16 @@ enum MyThemes { light, dark }
 
 final List<ThemeData> themeData = [
   ThemeData(
-      brightness: Brightness.light,
-      primaryColor: Colors.blue,
-      accentColor: Colors.lightBlueAccent),
+    brightness: Brightness.light,
+    colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+    useMaterial3: true,
+  ),
   ThemeData(
+    brightness: Brightness.dark,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.orange,
       brightness: Brightness.dark,
-      primaryColor: Colors.orange,
-      accentColor: Colors.yellowAccent)
+    ),
+    useMaterial3: true,
+  ),
 ];

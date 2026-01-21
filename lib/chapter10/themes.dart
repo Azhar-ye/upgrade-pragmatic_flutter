@@ -1,29 +1,16 @@
 import 'package:flutter/material.dart';
 
-//Themes definitions
-ThemeData get defaultTheme => ThemeData(
-      // Define the default brightness and colors for the overall app.
-      brightness: Brightness.light,
-      primaryColor: Colors.blue,
-      accentColor: Colors.lightBlueAccent,
-      appBarTheme: AppBarTheme(
-        color: Colors.blue,
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ),
-      ),
-    );
+ThemeData defaultTheme = ThemeData(
+  brightness: Brightness.light,
+  colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+  useMaterial3: true,
+);
 
-ThemeData get pinkTheme => ThemeData(
-      // Define the default brightness and colors for the overall app.
-      brightness: Brightness.light,
-      primaryColor: Colors.pink,
-      accentColor: Colors.pinkAccent,
-    );
-
-ThemeData get darkTheme => ThemeData(
-      // Define the default brightness and colors for the overall app.
-      brightness: Brightness.dark,
-      primaryColor: Colors.orange,
-      accentColor: Colors.yellowAccent,
-    );
+ThemeData darkTheme = ThemeData(
+  brightness: Brightness.dark,
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: Colors.blue,
+    brightness: Brightness.dark,
+  ),
+  useMaterial3: true,
+);

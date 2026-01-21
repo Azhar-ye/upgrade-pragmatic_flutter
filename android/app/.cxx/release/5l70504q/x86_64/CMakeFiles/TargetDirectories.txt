@@ -1,0 +1,2 @@
+C:/pragmatic_flutter/android/app/.cxx/release/5l70504q/x86_64/CMakeFiles/edit_cache.dir
+C:/pragmatic_flutter/android/app/.cxx/release/5l70504q/x86_64/CMakeFiles/rebuild_cache.dir

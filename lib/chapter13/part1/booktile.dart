@@ -1,45 +1,62 @@
 import 'package:flutter/material.dart';
 
 class BookTile extends StatelessWidget {
-  final book;
+  final dynamic book;
 
-  const BookTile({Key key, this.book}) : super(key: key);
+  const BookTile({super.key, required this.book});
+
   @override
   Widget build(BuildContext context) {
+    final volumeInfo = book['volumeInfo'] ?? {};
+    final title = volumeInfo['title'] ?? 'No Title';
+    final authors = volumeInfo['authors'] ?? [];
+    final thumbnail =
+        volumeInfo['imageLinks']?['thumbnail'];
+
     return Card(
+      elevation: 4,
+      margin: const EdgeInsets.all(10),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
+        borderRadius: BorderRadius.circular(12),
       ),
-      elevation: 5,
-      margin: EdgeInsets.all(10),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(10),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Flexible(
+            if (thumbnail != null)
+              Image.network(
+                thumbnail,
+                width: 60,
+                height: 80,
+                fit: BoxFit.cover,
+              )
+            else
+              const SizedBox(
+                width: 60,
+                height: 80,
+                child: Icon(Icons.book),
+              ),
+            const SizedBox(width: 12),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
+                children: [
                   Text(
-                    '${book['volumeInfo']['title']}',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  book['volumeInfo']['authors'] != null
-                      ? Text(
-                          'Author(s): ${book['volumeInfo']['authors'].join(", ")}',
-                          style: TextStyle(fontSize: 14),
-                        )
-                      : Text(""),
+                  const SizedBox(height: 6),
+                  Text(
+                    authors.isNotEmpty
+                        ? "Author(s): ${authors.join(", ")}"
+                        : "Author(s): -",
+                  ),
                 ],
               ),
             ),
-            book['volumeInfo']['imageLinks']['thumbnail'] != null
-                ? Image.network(
-                    book['volumeInfo']['imageLinks']['thumbnail'],
-                    fit: BoxFit.fill,
-                  )
-                : Container(),
           ],
         ),
       ),

@@ -1,48 +1,81 @@
 import 'package:flutter/material.dart';
-
 import 'book.dart';
+import 'book_details_page.dart';
 
 class BookTile extends StatelessWidget {
   final BookModel bookModelObj;
 
-  const BookTile({Key key, this.bookModelObj}) : super(key: key);
+  const BookTile({super.key, required this.bookModelObj});
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      elevation: 5,
-      margin: EdgeInsets.all(10),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    '${bookModelObj.volumeInfo.title}',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                  bookModelObj.volumeInfo.authors != null
-                      ? Text(
-                          'Author(s): ${bookModelObj.volumeInfo.authors.join(", ")}',
-                          style: TextStyle(fontSize: 14),
-                        )
-                      : Text(""),
-                ],
+    final title = bookModelObj.volumeInfo?.title ?? "No Title";
+    final authors = bookModelObj.volumeInfo?.authors ?? [];
+    final thumbnail = bookModelObj.volumeInfo?.imageLinks?.thumbnail;
+
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BookDetailsPage(book: bookModelObj),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 4,
+        margin: const EdgeInsets.all(10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              if (thumbnail != null && thumbnail.isNotEmpty)
+                Image.network(
+                  thumbnail,
+                  width: 60,
+                  height: 80,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const SizedBox(
+                      width: 60,
+                      height: 80,
+                      child: Icon(Icons.book),
+                    );
+                  },
+                )
+              else
+                const SizedBox(
+                  width: 60,
+                  height: 80,
+                  child: Icon(Icons.book),
+                ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      authors.isNotEmpty
+                          ? "Author(s): ${authors.join(", ")}"
+                          : "Author(s): -",
+                    ),
+                  ],
+                ),
               ),
-            ),
-            bookModelObj.volumeInfo.imageLinks.thumbnail != null
-                ? Image.network(
-                    bookModelObj.volumeInfo.imageLinks.thumbnail,
-                    fit: BoxFit.fill,
-                  )
-                : Container(),
-          ],
+              const Icon(Icons.arrow_forward_ios, size: 16),
+            ],
+          ),
         ),
       ),
     );

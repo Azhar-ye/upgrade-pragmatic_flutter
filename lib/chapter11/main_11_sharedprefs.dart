@@ -1,105 +1,109 @@
-//Persisting selected theme using sharedPreference
+// Persisting selected theme using SharedPreferences (Flutter terbaru FIX)
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'themes.dart';
 
-//Uncomment the line below to run from this file
-void main() => runApp(BooksApp());
+void main() => runApp(const BooksApp());
 
-//Showing book listing in ListView
+enum AppThemes { light, dark }
+
 class BooksApp extends StatefulWidget {
+  const BooksApp({super.key});
+
   @override
-  _BooksAppState createState() => _BooksAppState();
+  State<BooksApp> createState() => _BooksAppState();
 }
 
 class _BooksAppState extends State<BooksApp> {
   AppThemes currentTheme = AppThemes.light;
 
-  //NEW CODE: Save theme_id using SharedPreference
-  Future<void> switchTheme() async {
-    currentTheme =
-        currentTheme == AppThemes.light ? AppThemes.dark : AppThemes.light;
-
-    //NEW CODE: save current selection
-    var sharedPrefs = await SharedPreferences.getInstance();
-    await sharedPrefs.setInt('theme_id', currentTheme.index);
+  @override
+  void initState() {
+    super.initState();
+    loadActiveTheme();
   }
 
-  //NEW CODE: Fetching theme_id from SharedPreference
-  void loadActiveTheme(BuildContext context) async {
-    var sharedPrefs = await SharedPreferences.getInstance();
-    //if theme_id key is null (not found), then set default theme
-    int themeId = sharedPrefs.getInt('theme_id') ?? AppThemes.light.index;
+  // Load theme from SharedPreferences
+  Future<void> loadActiveTheme() async {
+    final sharedPrefs = await SharedPreferences.getInstance();
+    final themeId = sharedPrefs.getInt('theme_id') ?? AppThemes.light.index;
 
     setState(() {
       currentTheme = AppThemes.values[themeId];
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
+  // Switch theme and save to SharedPreferences
+  Future<void> switchTheme() async {
+    final newTheme =
+        currentTheme == AppThemes.light ? AppThemes.dark : AppThemes.light;
 
-    //NEW CODE: Load theme from sharedPreference
-    loadActiveTheme(context);
+    final sharedPrefs = await SharedPreferences.getInstance();
+    await sharedPrefs.setInt('theme_id', newTheme.index);
+
+    setState(() {
+      currentTheme = newTheme;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      //Applying theme to the app
       theme: currentTheme == AppThemes.light ? defaultTheme : darkTheme,
       home: Scaffold(
         appBar: AppBar(
-            leading: Icon(Icons.home),
-            title: Text("Books Listing"),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.all_inclusive),
-                onPressed: () {
-                  setState(() {
-                    switchTheme();
-                  });
-                },
-              )
-            ]),
-        body: BooksListing(),
+          leading: const Icon(Icons.home),
+          title: const Text("Books Listing"),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.all_inclusive),
+              onPressed: () async {
+                await switchTheme();
+              },
+            ),
+          ],
+        ),
+        body: const BooksListing(),
       ),
     );
   }
 }
 
-List bookData() {
+List<Map<String, dynamic>> bookData() {
   return [
     {
       'title': 'Book Title',
       'authors': ['Author1', 'Author2'],
-      'image': 'assets/book_cover.png'
+      'image': 'assets/book_cover.png',
     },
     {
       'title': 'Book Title 2',
       'authors': ['Author1'],
-      'image': 'assets/book_cover.png'
-    }
+      'image': 'assets/book_cover.png',
+    },
   ];
 }
 
 class BooksListing extends StatelessWidget {
-  final booksListing = bookData();
+  const BooksListing({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final booksListing = bookData();
+
     return ListView.builder(
-      itemCount: booksListing == null ? 0 : booksListing.length,
+      itemCount: booksListing.length,
       itemBuilder: (context, index) {
+        final book = booksListing[index];
+
         return Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
           elevation: 5,
-          margin: EdgeInsets.all(10),
+          margin: const EdgeInsets.all(10),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -110,25 +114,28 @@ class BooksListing extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        '${booksListing[index]['title']}',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold),
+                        '${book['title']}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      booksListing[index]['authors'] != null
+                      (book['authors'] != null &&
+                              (book['authors'] as List).isNotEmpty)
                           ? Text(
-                              'Author(s): ${booksListing[index]['authors'].join(", ")}',
-                              style: TextStyle(fontSize: 14),
+                              'Author(s): ${(book['authors'] as List).join(", ")}',
+                              style: const TextStyle(fontSize: 14),
                             )
-                          : Text(""),
+                          : const Text(""),
                     ],
                   ),
                 ),
-                booksListing[index]['image'] != null
-                    ? Image.asset(
-                        booksListing[index]['image'],
-                        fit: BoxFit.fill,
-                      )
-                    : Container(),
+                Image.asset(
+                  book['image'],
+                  width: 60,
+                  height: 80,
+                  fit: BoxFit.fill,
+                ),
               ],
             ),
           ),

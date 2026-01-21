@@ -1,30 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../config.dart';
+/// Chapter12: Integrating REST API (Google Books API) - tanpa API Key
+//void main() => runApp(const BooksApp());
 
-/// Chapter12: Integrating REST API
-///
-//Uncomment the line below to run from this file
-void main() => runApp(BooksApp());
-
-//Making HTTP request
+// Making HTTP request
 Future<String> makeHttpCall() async {
-  final apiKey = "$YOUR_API_KEY";
+ 
+  
   final apiEndpoint =
-      "https://www.googleapis.com/books/v1/volumes?key=$apiKey&q=python+coding";
-  final http.Response response = await http
-      .get(Uri.parse(apiEndpoint), headers: {'Accept': 'application/json'});
+      "https://www.googleapis.com/books/v1/volumes?q=python+coding";
 
-  //This will print `flutter: Instance of 'Response'` on console.
-  print(response);
+  final http.Response response = await http.get(
+    Uri.parse(apiEndpoint),
+    headers: {'Accept': 'application/json'},
+  );
+
+  debugPrint("STATUS: ${response.statusCode}");
   return response.body;
 }
 
 class BooksApp extends StatelessWidget {
+  const BooksApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: BooksListing(),
     );
@@ -32,22 +33,29 @@ class BooksApp extends StatelessWidget {
 }
 
 class BooksListing extends StatefulWidget {
+  const BooksListing({super.key});
+
   @override
-  _BooksListingState createState() => _BooksListingState();
+  State<BooksListing> createState() => _BooksListingState();
 }
 
 class _BooksListingState extends State<BooksListing> {
-  String booksResponse;
+  String? booksResponse;
+  bool isLoading = true;
 
-  //method to fetch books asynchronously
-  fetchBooks() async {
-    //making REST API call
-    var response = await makeHttpCall();
-
-    //Updating booksResponse to fetched remote data
-    setState(() {
-      booksResponse = response;
-    });
+  Future<void> fetchBooks() async {
+    try {
+      final response = await makeHttpCall();
+      setState(() {
+        booksResponse = response;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        booksResponse = "ERROR: $e";
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -58,15 +66,16 @@ class _BooksListingState extends State<BooksListing> {
 
   @override
   Widget build(BuildContext context) {
-    //fetching books listing
-    //fetchBooks();
-
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Chapter 12 - REST API"),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: booksResponse != null
-              ? Text("Google Books API response\n $booksResponse")
-              : Text("No Response from API"),
+          padding: const EdgeInsets.all(12),
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Text(booksResponse ?? "No Response from API"),
         ),
       ),
     );

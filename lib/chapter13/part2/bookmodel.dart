@@ -1,78 +1,104 @@
 class BookModel {
-  final VolumeInfo volumeInfo;
-  final AccessInfo accessInfo;
-  final SaleInfo saleInfo;
+  VolumeInfo? volumeInfo;
+  AccessInfo? accessInfo;
+  SaleInfo? saleInfo;
 
-  BookModel({this.volumeInfo, this.accessInfo, this.saleInfo});
+  BookModel({
+    this.volumeInfo,
+    this.accessInfo,
+    this.saleInfo,
+  });
 
   factory BookModel.fromJson(Map<String, dynamic> json) {
     return BookModel(
-        volumeInfo: VolumeInfo.fromJson(json['volumeInfo']),
-        accessInfo: AccessInfo.fromJson(json['accessInfo']),
-        saleInfo: SaleInfo.fromJson(json['saleInfo']));
+      volumeInfo: json['volumeInfo'] != null
+          ? VolumeInfo.fromJson(json['volumeInfo'])
+          : null,
+      accessInfo: json['accessInfo'] != null
+          ? AccessInfo.fromJson(json['accessInfo'])
+          : null,
+      saleInfo:
+          json['saleInfo'] != null ? SaleInfo.fromJson(json['saleInfo']) : null,
+    );
   }
 }
 
 class VolumeInfo {
-  final String title;
-  final String subtitle;
-  final String description;
-  final List<dynamic> authors;
-  final String publisher;
-  final String publishedDate;
-  final ImageLinks imageLinks;
+  String? title;
+  String? subtitle;
+  String? description;
+  List<String>? authors;
+  String? publisher;
+  String? publishedDate;
+  ImageLinks? imageLinks;
 
-  VolumeInfo(
-      {this.title,
-      this.subtitle,
-      this.description,
-      this.authors,
-      this.publisher,
-      this.publishedDate,
-      this.imageLinks});
+  VolumeInfo({
+    this.title,
+    this.subtitle,
+    this.description,
+    this.authors,
+    this.publisher,
+    this.publishedDate,
+    this.imageLinks,
+  });
 
   factory VolumeInfo.fromJson(Map<String, dynamic> json) {
     return VolumeInfo(
-        title: json['title'],
-        subtitle: json['subtitle'],
-        description: json['description'],
-        authors: json['authors'] as List,
-        publisher: json['publisher'],
-        publishedDate: json['publishedDate'],
-        imageLinks: ImageLinks.fromJson(json['imageLinks']));
+      title: json['title'],
+      subtitle: json['subtitle'],
+      description: json['description'],
+      authors: (json['authors'] as List?)?.map((e) => e.toString()).toList(),
+      publisher: json['publisher'],
+      publishedDate: json['publishedDate'],
+      imageLinks: json['imageLinks'] != null
+          ? ImageLinks.fromJson(json['imageLinks'])
+          : null,
+    );
   }
 }
 
 class ImageLinks {
-  final String smallThumbnail;
-  final String thumbnail;
+  String? smallThumbnail;
+  String? thumbnail;
 
-  ImageLinks({this.smallThumbnail, this.thumbnail});
+  ImageLinks({
+    this.smallThumbnail,
+    this.thumbnail,
+  });
 
   factory ImageLinks.fromJson(Map<String, dynamic> json) {
     return ImageLinks(
-        smallThumbnail: json != null ? json['smallThumbnail'] : '',
-        thumbnail: json != null ? json['thumbnail'] : '');
+      smallThumbnail: json['smallThumbnail'],
+      thumbnail: json['thumbnail'],
+    );
   }
 }
 
 class AccessInfo {
-  String webReaderLink;
+  String? webReaderLink;
 
   AccessInfo({this.webReaderLink});
 
   factory AccessInfo.fromJson(Map<String, dynamic> json) {
-    return AccessInfo(webReaderLink: json['webReaderLink']);
+    return AccessInfo(
+      webReaderLink: json['webReaderLink'],
+    );
   }
 }
 
 class SaleInfo {
-  final String saleability;
-  final String buyLink;
+  String? saleability;
+  String? buyLink;
 
-  SaleInfo({this.saleability, this.buyLink});
+  SaleInfo({
+    this.saleability,
+    this.buyLink,
+  });
 
   factory SaleInfo.fromJson(Map<String, dynamic> json) {
-    return SaleInfo(saleability: json['saleability'], buyLink: json['buyLink']);
+    return SaleInfo(
+      saleability: json['saleability'],
+      buyLink: json['buyLink'],
+    );
   }
 }

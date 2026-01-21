@@ -1,4 +1,3 @@
-//importing the Dart package
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -8,88 +7,61 @@ import '../config.dart';
 import 'book.dart';
 import 'book_details_page.dart';
 import 'booktile.dart';
-import 'page_not_found.dart';
 
-/// Chapter15:The Second Page: BookDetails Widget
-///
-//Uncomment the line below to run from this file
-void main() => runApp(BooksApp());
+//void main() => runApp(const BooksApp());
 
 class BooksApp extends StatelessWidget {
+  const BooksApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    //Using Dynamic Navigation (Named Routing)
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: BooksListing(),
-      //Named with onGenerateRoute
-      initialRoute: '/',
-      onGenerateRoute: generateRoute,
+      home: BooksListingPage(),
     );
   }
 }
 
-Route<dynamic> generateRoute(RouteSettings routeSettings) {
-  final args = routeSettings.arguments;
+class BooksListingPage extends StatefulWidget {
+  const BooksListingPage({super.key});
 
-  switch (routeSettings.name) {
-    case '/':
-      return MaterialPageRoute(
-        builder: (context) => BooksListing(),
-      );
+  @override
+  State<BooksListingPage> createState() => _BooksListingPageState();
+}
 
-    case '/details':
-      if (args is BookModel) {
-        return MaterialPageRoute(
-          builder: (context) => BookDetailsPage(
-            book: args,
-          ),
-        );
+class _BooksListingPageState extends State<BooksListingPage> {
+  List<BookModel> booksListing = [];
+  bool isLoading = true;
+  String? errorMsg;
+
+  Future<void> fetchBooks() async {
+    try {
+      final apiEndpoint =
+          "https://www.googleapis.com/books/v1/volumes?key=$YOUR_API_KEY&q=python+coding&maxResults=20";
+
+      final response = await http.get(Uri.parse(apiEndpoint));
+
+      if (response.statusCode != 200) {
+        throw Exception("HTTP ${response.statusCode}: ${response.body}");
       }
 
-      return MaterialPageRoute(
-        builder: (context) => PageNotFound(),
-      );
+      final Map<String, dynamic> jsonData = jsonDecode(response.body);
+      final List items = (jsonData['items'] ?? []) as List;
 
-    default:
-      return MaterialPageRoute(
-        builder: (context) => PageNotFound(),
-      );
-  }
-}
+      final parsedBooks = items
+          .map((item) => BookModel.fromJson(item as Map<String, dynamic>))
+          .toList();
 
-//Making HTTP request
-//Function to make REST API call
-Future<List<BookModel>> makeHttpCall() async {
-  //API Key: To be replaced with your key
-  final apiKey = "$YOUR_API_KEY";
-  final apiEndpoint =
-      "https://www.googleapis.com/books/v1/volumes?key=$apiKey&q=python+coding";
-  final http.Response response = await http
-      .get(Uri.parse(apiEndpoint), headers: {'Accept': 'application/json'});
-
-  //Parsing API's HttpResponse to JSON format
-  //Converting string response body to JSON representation
-  final jsonObject = json.decode(response.body);
-
-  var list = jsonObject['items'] as List;
-  //return the list of Book objects
-  return list.map((e) => BookModel.fromJson(e)).toList();
-}
-
-class BooksListing extends StatefulWidget {
-  @override
-  _BooksListingState createState() => _BooksListingState();
-}
-
-class _BooksListingState extends State<BooksListing> {
-  List<BookModel> booksListing;
-  fetchBooks() async {
-    var response = await makeHttpCall();
-
-    setState(() {
-      booksListing = response;
-    });
+      setState(() {
+        booksListing = parsedBooks;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        errorMsg = e.toString();
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -98,24 +70,37 @@ class _BooksListingState extends State<BooksListing> {
     fetchBooks();
   }
 
+  void openDetails(BookModel book) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BookDetailsPage(book: book),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Books Listing"),
+        title: const Text("Chapter 15 - Read & Buy Link"),
       ),
-      body: ListView.builder(
-        itemCount: booksListing == null ? 0 : booksListing.length,
-        itemBuilder: (context, index) {
-          //Passing bookModelObj to BookTile widget
-          return GestureDetector(
-              child: BookTile(bookModelObj: booksListing[index]),
-              onTap: () => Navigator.pushNamed(
-                    context,
-                    '/details',
-                    arguments: booksListing[index],
-                  ));
-        },
+      body: SafeArea(
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : (errorMsg != null)
+                ? Center(child: Text("Error: $errorMsg"))
+                : ListView.builder(
+                    itemCount: booksListing.length,
+                    itemBuilder: (context, index) {
+                      final book = booksListing[index];
+
+                      return InkWell(
+                        onTap: () => openDetails(book),
+                        child: BookTile(bookModelObj: book),
+                      );
+                    },
+                  ),
       ),
     );
   }

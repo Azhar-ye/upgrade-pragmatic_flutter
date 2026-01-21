@@ -1,0 +1,1 @@
+C:\pragmatic_flutter\android\app\build\intermediates\cxx\release\5l70504q\obj\armeabi-v7a

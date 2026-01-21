@@ -5,144 +5,83 @@ import 'book.dart';
 
 class BookDetailsPage extends StatelessWidget {
   final BookModel book;
-  const BookDetailsPage({Key key, this.book}) : super(key: key);
+
+  const BookDetailsPage({super.key, required this.book});
+
+  Future<void> openUrl(String url) async {
+    final uri = Uri.parse(url);
+
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw Exception("Gagal membuka link: $url");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final title = book.volumeInfo?.title ?? "-";
+    final authors = (book.volumeInfo?.authors ?? []).join(", ");
+    final desc = book.volumeInfo?.description ?? "No description";
+
+    final webReader = book.accessInfo?.webReaderLink;
+    final buyLink = book.saleInfo?.buyLink;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(book.volumeInfo.title),
+        title: const Text("Book Details"),
       ),
-      body: SingleChildScrollView(
+      body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              InformationWidget(
-                book: book,
+          padding: const EdgeInsets.all(14),
+          child: ListView(
+            children: [
+              Text(
+                title,
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
-              ActionsWidget(
-                book: book,
+              const SizedBox(height: 8),
+              Text("Author(s): $authors"),
+              const SizedBox(height: 16),
+
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: webReader == null
+                          ? null
+                          : () async {
+                              await openUrl(webReader);
+                            },
+                      icon: const Icon(Icons.chrome_reader_mode),
+                      label: const Text("Read"),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: buyLink == null
+                          ? null
+                          : () async {
+                              await openUrl(buyLink);
+                            },
+                      icon: const Icon(Icons.shopping_cart),
+                      label: const Text("Buy"),
+                    ),
+                  ),
+                ],
               ),
-              DescriptionWidget(
-                book: book,
+
+              const SizedBox(height: 16),
+              const Text(
+                "Description",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+              const SizedBox(height: 8),
+              Text(desc),
             ],
           ),
         ),
       ),
     );
-  }
-}
-
-class InformationWidget extends StatelessWidget {
-  final BookModel book;
-
-  const InformationWidget({Key key, this.book}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Flexible(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              book.volumeInfo.title != null
-                  ? Text(
-                      '${book.volumeInfo.title}',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    )
-                  : Container(),
-              book.volumeInfo.subtitle != null
-                  ? Text(
-                      '${book.volumeInfo.subtitle}',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic),
-                    )
-                  : Container(),
-              book.volumeInfo.authors != null
-                  ? Text(
-                      'Author(s): ${book.volumeInfo.authors.join(", ")}',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    )
-                  : Container(),
-              book.volumeInfo.publisher != null
-                  ? Text(
-                      "Published by: ${book.volumeInfo.publisher}",
-                      style:
-                          TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
-                    )
-                  : Container(),
-              book.volumeInfo.publishedDate != null
-                  ? Text(
-                      "Published on: ${book.volumeInfo.publishedDate}",
-                      style:
-                          TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
-                    )
-                  : Container(),
-            ],
-          ),
-        ),
-        book.volumeInfo.imageLinks.thumbnail != null
-            ? Image.network(
-                book.volumeInfo.imageLinks.thumbnail,
-                fit: BoxFit.fill,
-              )
-            : Container(),
-      ],
-    );
-  }
-}
-
-class ActionsWidget extends StatelessWidget {
-  final BookModel book;
-
-  const ActionsWidget({Key key, this.book}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          book.accessInfo.webReaderLink != null
-              ? FloatingActionButton.extended(
-                  label: Text("Read"),
-                  heroTag: "webReaderLink",
-                  onPressed: () => launch(book.accessInfo.webReaderLink),
-                )
-              : Container(),
-          book.saleInfo.saleability == "FOR_SALE"
-              ? FloatingActionButton.extended(
-                  label: Text("Buy"),
-                  heroTag: "buy_book",
-                  onPressed: () => launch(book.saleInfo.buyLink),
-                )
-              : Container(),
-        ],
-      ),
-    );
-  }
-}
-
-class DescriptionWidget extends StatelessWidget {
-  final BookModel book;
-
-  const DescriptionWidget({Key key, this.book}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return book.volumeInfo.description != null
-        ? Text(book.volumeInfo.description.toString())
-        : Container();
   }
 }
